@@ -10,7 +10,7 @@ This repository is a monorepo that contains 1 package and 2 applications:
 -   @ts-turborepo-boilerplate/sample-app: A demo application demonstrating the use of sample-lib.
 -   @grants-stack-indexer/indexer: An [`envio`](https://docs.envio.dev/) indexer, that collects all the relevant events from Allo contracts.
 
-## 🚀 Local Deployment (Dockerized)
+## 🚀 Local Deployment (Development)
 
 ### Prerequisites
 
@@ -19,15 +19,39 @@ Ensure you have the following installed on your machine:
 -   [Docker](https://www.docker.com/get-started)
 -   [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Run
+### Setup
 
-To deploy locally with Docker, run the following command:
+1. Copy the Example Environment File and edit the `.env` file
+
+```
+cp .env.example .env
+```
+
+2. Build and start the services in detached mode:
 
 ```
 docker-compose up -d --build
 ```
 
-Once the deployment is complete, you can access Hasura by navigating to:
+3. Copy the Example Environment File on `apps/migration-scripts` and edit the `.env` file
+
+```
+cp apps/migration-scripts/.env.example apps/migration-scripts/.env
+```
+
+4. After starting Docker Compose, run the following command to apply the database migrations:
+
+```
+pnpm script:db:migrate
+```
+
+5. Navigate to the processing service directory and start it with:
+
+```
+cd apps/processing && pnpm dev
+```
+
+Once the setup is completed you can access Hasura by navigating to:
 
 ```
 http://localhost:8080/
