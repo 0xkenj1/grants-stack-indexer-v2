@@ -23,6 +23,30 @@ const DVMD_DATA_DECODER = [
     },
 ] as const;
 
+const DG_DATA_DECODER = [
+    { name: "recipientId", type: "address" },
+    { name: "registryAnchor", type: "address" },
+    { name: "grantAmount", type: "uint256" },
+    {
+        name: "metadata",
+        type: "tuple",
+        components: [
+            { name: "protocol", type: "uint256" },
+            { name: "pointer", type: "string" },
+        ],
+    },
+] as const;
+
+export type DGApplicationData = {
+    recipientAddress: string;
+    anchorAddress: string;
+    grantAmount: bigint;
+    metadata: {
+        protocol: number;
+        pointer: string;
+    };
+};
+
 export const decodeDVMDApplicationData = (encodedData: Hex): DVMDApplicationData => {
     const decodedData = decodeAbiParameters(DVMD_DATA_DECODER, encodedData);
 
@@ -43,10 +67,26 @@ export const decodeDVMDExtendedApplicationData = (
 ): DVMDExtendedApplicationData => {
     const values = decodeAbiParameters(DVMD_EVENT_DATA_DECODER, encodedData);
 
-    const encodededDVMD = decodeDVMDApplicationData(values[0]);
+    const decodedDVMD = decodeDVMDApplicationData(values[0]);
 
     return {
-        ...encodededDVMD,
+        ...decodedDVMD,
         recipientsCounter: values[1].toString(),
     };
+};
+
+export const decodeDGApplicationData = (encodedData: Hex): DGApplicationData => {
+    const decodedData = decodeAbiParameters(DG_DATA_DECODER, encodedData);
+
+    const results: DGApplicationData = {
+        recipientAddress: decodedData[0],
+        anchorAddress: decodedData[1],
+        grantAmount: decodedData[2],
+        metadata: {
+            protocol: Number(decodedData[3].protocol),
+            pointer: decodedData[3].pointer,
+        },
+    };
+
+    return results;
 };
