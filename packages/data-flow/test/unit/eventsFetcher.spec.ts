@@ -12,6 +12,7 @@ describe("EventsFetcher", () => {
     beforeEach(() => {
         indexerClientMock = {
             getEventsAfterBlockNumberAndLogIndex: vi.fn(),
+            getEvents: vi.fn(),
         };
 
         eventsFetcher = new EventsFetcher(indexerClientMock);

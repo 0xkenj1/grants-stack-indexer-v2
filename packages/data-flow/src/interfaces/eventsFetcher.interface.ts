@@ -1,3 +1,4 @@
+import { GetEventsFilters } from "@grants-stack-indexer/indexer-client";
 import { AnyIndexerFetchedEvent, ChainId } from "@grants-stack-indexer/shared";
 
 /**
@@ -17,4 +18,14 @@ export interface IEventsFetcher {
         logIndex: number,
         limit?: number,
     ): Promise<AnyIndexerFetchedEvent[]>;
+
+    /**
+     * Fetch the events by src address, block number and log index for a chain
+     * @param chainId id of the chain
+     * @param srcAddresses src addresses to fetch events from
+     * @param toBlock block number to fetch events from
+     * @param logIndex log index in the block to fetch events from
+     * @param limit limit of events to fetch
+     */
+    fetchEvents(params: GetEventsFilters): Promise<AnyIndexerFetchedEvent[]>;
 }
