@@ -1,5 +1,5 @@
 import { ICache, PriceCacheKey } from "@grants-stack-indexer/repository";
-import { ILogger, TokenCode } from "@grants-stack-indexer/shared";
+import { ICacheable, ILogger, TokenCode } from "@grants-stack-indexer/shared";
 
 import { IPricingProvider, TokenPrice } from "../internal.js";
 
@@ -9,10 +9,10 @@ import { IPricingProvider, TokenPrice } from "../internal.js";
  * If not found in cache, fetches from the underlying provider and caches the result before returning.
  * Cache failures (both reads and writes) are logged but do not prevent the provider from functioning.
  */
-export class CachingPricingProvider implements IPricingProvider {
+export class CachingPricingProvider implements IPricingProvider, ICacheable {
     constructor(
         private readonly provider: IPricingProvider,
-        private readonly cache: ICache<PriceCacheKey, TokenPrice>,
+        private readonly cache: ICache<PriceCacheKey, TokenPrice> & Partial<ICacheable>,
         private readonly logger: ILogger,
     ) {}
 
@@ -63,5 +63,16 @@ export class CachingPricingProvider implements IPricingProvider {
         }
 
         return price;
+    }
+
+    /** @inheritdoc */
+    async clearCache(): Promise<void> {
+        try {
+            await this.cache.clearCache?.();
+        } catch (error) {
+            this.logger.debug(`Failed to clear pricing cache`, {
+                error,
+            });
+        }
     }
 }

@@ -5,6 +5,8 @@ import { CachingPricingProvider, PricingProviderFactory } from "@grants-stack-in
 import {
     createKyselyDatabase,
     IEventRegistryRepository,
+    InMemoryMetadataCache,
+    InMemoryPricingCache,
     IStrategyProcessingCheckpointRepository,
     IStrategyRegistryRepository,
     KyselyApplicationPayoutRepository,
@@ -71,20 +73,31 @@ export class SharedDependenciesService {
             env.DATABASE_SCHEMA,
         );
         const pricingRepository = new KyselyPricingCache(kyselyDatabase, env.DATABASE_SCHEMA);
-        const pricingProvider = PricingProviderFactory.create(env, {
+        const internalPricingProvider = PricingProviderFactory.create(env, {
             logger,
         });
-        const cachedPricingProvider = new CachingPricingProvider(
-            pricingProvider,
+        const dbCachedPricingProvider = new CachingPricingProvider(
+            internalPricingProvider,
             pricingRepository,
             logger,
         );
 
+        const pricingProvider = new CachingPricingProvider(
+            dbCachedPricingProvider,
+            new InMemoryPricingCache(),
+            logger,
+        );
+
         const metadataRepository = new KyselyMetadataCache(kyselyDatabase, env.DATABASE_SCHEMA);
-        const metadataProvider = new IpfsProvider(env.IPFS_GATEWAYS_URL, logger);
-        const cachedMetadataProvider = new CachingMetadataProvider(
-            metadataProvider,
+        const internalMetadataProvider = new IpfsProvider(env.IPFS_GATEWAYS_URL, logger);
+        const dbCachedMetadataProvider = new CachingMetadataProvider(
+            internalMetadataProvider,
             metadataRepository,
+            logger,
+        );
+        const metadataProvider = new CachingMetadataProvider(
+            dbCachedMetadataProvider,
+            new InMemoryMetadataCache(),
             logger,
         );
 
@@ -118,9 +131,9 @@ export class SharedDependenciesService {
                 projectRepository,
                 roundRepository,
                 applicationRepository,
-                pricingProvider: cachedPricingProvider,
+                pricingProvider,
                 donationRepository,
-                metadataProvider: cachedMetadataProvider,
+                metadataProvider,
                 applicationPayoutRepository,
                 transactionManager,
             },
