@@ -15,9 +15,8 @@ import {
 export class EnvioIndexerClient implements IIndexerClient {
     private client: GraphQLClient;
 
-    constructor(url: string, secret: string) {
+    constructor(url: string) {
         this.client = new GraphQLClient(url);
-        this.client.setHeader("x-hasura-admin-secret", secret);
     }
     /* @inheritdoc */
     public async getEventsAfterBlockNumberAndLogIndex({

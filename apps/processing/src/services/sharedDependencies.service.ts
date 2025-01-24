@@ -114,10 +114,7 @@ export class SharedDependenciesService {
             new KyselyStrategyProcessingCheckpointRepository(kyselyDatabase, env.DATABASE_SCHEMA);
 
         // Initialize indexer client
-        const indexerClient = new EnvioIndexerClient(
-            env.INDEXER_GRAPHQL_URL,
-            env.INDEXER_ADMIN_SECRET,
-        );
+        const indexerClient = new EnvioIndexerClient(env.INDEXER_GRAPHQL_URL);
 
         const retryStrategy = new ExponentialBackoff({
             maxAttempts: env.RETRY_MAX_ATTEMPTS,

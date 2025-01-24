@@ -92,7 +92,7 @@ describe("EnvioIndexerClient", () => {
     ];
 
     beforeEach(() => {
-        envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql", "secret");
+        envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql");
         graphqlClient = envioIndexerClient["client"] as unknown as Mocked<GraphQLClient>;
     });
 
@@ -105,14 +105,14 @@ describe("EnvioIndexerClient", () => {
             expect(GraphQLClient).toHaveBeenCalledWith("http://example.com/graphql");
         });
 
-        it("sets the x-hasura-admin-secret header", () => {
-            expect(graphqlClient.setHeader).toHaveBeenCalledWith("x-hasura-admin-secret", "secret");
-        });
+        // it("sets the x-hasura-admin-secret header", () => {
+        //     expect(graphqlClient.setHeader).toHaveBeenCalledWith("x-hasura-admin-secret");
+        // });
     });
 
     describe("getEventsAfterBlockNumberAndLogIndex", () => {
         beforeEach(() => {
-            envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql", "secret");
+            envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql");
             graphqlClient = envioIndexerClient["client"] as unknown as Mocked<GraphQLClient>;
 
             // Mock the request implementation to simulate database querying
@@ -333,7 +333,7 @@ describe("EnvioIndexerClient", () => {
 
     describe("getEvents (old test cases)", () => {
         beforeEach(() => {
-            envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql", "secret");
+            envioIndexerClient = new EnvioIndexerClient("http://example.com/graphql");
             graphqlClient = envioIndexerClient["client"] as unknown as Mocked<GraphQLClient>;
 
             // Mock the request implementation to simulate database querying
