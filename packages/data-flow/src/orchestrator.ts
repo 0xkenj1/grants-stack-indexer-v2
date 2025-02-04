@@ -311,20 +311,13 @@ export class Orchestrator {
      * @returns The metadata
      */
     private async bulkFetchMetadata(metadataIds: string[]): Promise<unknown[]> {
-        const results = await Promise.allSettled(
-            metadataIds.map((id) =>
-                this.retryHandler.execute(() =>
-                    this.dependencies.metadataProvider.getMetadata<unknown>(id),
-                ),
-            ),
-        );
-
-        await pMap(
+        const results = await pMap(
             metadataIds,
             async (id) => {
                 try {
-                    const result =
-                        await this.dependencies.metadataProvider.getMetadata<unknown>(id);
+                    const result = await this.retryHandler.execute(() =>
+                        this.dependencies.metadataProvider.getMetadata<unknown>(id),
+                    );
                     return { status: "fulfilled", value: result };
                 } catch (error) {
                     console.log("rejected", id);
