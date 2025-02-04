@@ -1,0 +1,13 @@
+
+
+
+resource "aws_instance" "bastion" {
+  ami                  = "ami-0884d2865dbe9de4b"
+  instance_type        = "t3.large"
+  subnet_id            = var.subnet_id
+  iam_instance_profile = var.bastion_instance_profile_name
+
+  tags = {
+    Name = "${var.app_name}-${var.app_environment}-bastion"
+  }
+}
