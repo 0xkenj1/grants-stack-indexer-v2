@@ -35,6 +35,7 @@
         "@grants-stack-indexer/processors": "workspace:*",
         "@grants-stack-indexer/repository": "workspace:*",
         "@grants-stack-indexer/shared": "workspace:*",
+        "p-map": "7.0.3",
         "viem": "2.21.19"
     }
 }
