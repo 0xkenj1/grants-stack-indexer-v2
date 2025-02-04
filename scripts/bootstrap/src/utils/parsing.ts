@@ -11,12 +11,6 @@ const zodSchema = z.object({
         .string()
         .default(DEFAULT_SCHEMA)
         .describe("Database schema name where migrations are applied"),
-    migrationsFolder: z
-        .string()
-        .refine((value) => ["processing", "external-services-cache"].includes(value), {
-            message: "Invalid migrations folder",
-        })
-        .default("processing"),
 });
 
 export const parseArguments = (): z.infer<typeof zodSchema> => {
@@ -28,14 +22,6 @@ export const parseArguments = (): z.infer<typeof zodSchema> => {
             description: "Database schema name where migrations are applied",
             default: DEFAULT_SCHEMA,
         })
-        .options("migrationsFolder", {
-            alias: "m",
-            type: "string",
-            choices: ["processing", "external-services-cache"],
-            demandOption: true,
-            description: "Migrations folder",
-            default: "processing",
-        })
         .check((argv) => {
             zodSchema.parse(argv);
             return true;
@@ -43,10 +29,10 @@ export const parseArguments = (): z.infer<typeof zodSchema> => {
         .parseSync();
 };
 
-export const getMigrationsFolder = (type: string): string => {
+export const getMigrationsFolder = (): string => {
     const migrationsFolder = path.join(
         path.dirname(new URL(import.meta.url).pathname),
-        `../migrations/${type}`,
+        `../migrations`,
     );
 
     if (!existsSync(migrationsFolder)) {

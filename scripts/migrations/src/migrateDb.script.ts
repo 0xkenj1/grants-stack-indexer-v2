@@ -34,7 +34,7 @@ configDotenv();
 
 export const main = async (): Promise<void> => {
     const { DATABASE_URL, NODE_ENV } = getDatabaseConfigFromEnv();
-    const { schema } = parseArguments();
+    const { schema, migrationsFolder } = parseArguments();
 
     const logger = Logger.getInstance();
 
@@ -53,7 +53,8 @@ export const main = async (): Promise<void> => {
         {
             db,
             schema,
-            migrationsFolder: getMigrationsFolder(),
+            migrationsFolder: getMigrationsFolder(migrationsFolder),
+            domain: migrationsFolder,
         },
         logger,
     );

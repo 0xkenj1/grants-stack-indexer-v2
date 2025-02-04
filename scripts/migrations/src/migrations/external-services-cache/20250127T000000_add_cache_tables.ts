@@ -10,7 +10,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn("createdAt", "timestamptz", (col) => col.defaultTo(sql`now()`))
         .addPrimaryKeyConstraint("pricing_cache_pkey", ["tokenCode", "timestampMs"])
         .execute();
-
     // Create metadata cache table
     await db.schema
         .createTable("metadataCache")

@@ -7,9 +7,13 @@
     "author": "Wonderland",
     "type": "module",
     "scripts": {
+        "bootstrap:metadata": "pnpm run --filter @grants-stack-indexer/bootstrap bootstrap:metadata",
+        "bootstrap:pricing": "pnpm run --filter @grants-stack-indexer/bootstrap bootstrap:pricing",
         "build": "turbo run build",
         "check-types": "turbo run check-types",
         "clean": "turbo run clean",
+        "db:cache:migrate": "pnpm run --filter @grants-stack-indexer/migrations db:cache:migrate",
+        "db:cache:reset": "pnpm run --filter @grants-stack-indexer/migrations db:cache:reset",
         "db:migrate": "pnpm run --filter @grants-stack-indexer/migrations db:migrate",
         "db:reset": "pnpm run --filter @grants-stack-indexer/migrations db:reset",
         "dev": "turbo run dev",
