@@ -16,7 +16,7 @@ const dbEnvSchema = z.object({
     DATABASE_URL: z.string().url(),
     INDEXER_URL: z.string().url(),
     INDEXER_SECRET: z.string().optional(),
-    INDEXER_FETCH_LIMIT: z.number().optional().default(1000),
+    INDEXER_FETCH_LIMIT: z.coerce.number().optional().default(1000),
     PUBLIC_GATEWAY_URLS: stringToJSONSchema.pipe(z.array(z.string().url())),
     CHAIN_IDS: stringToJSONSchema.pipe(z.array(z.number())),
     NODE_ENV: z.enum(["development", "staging", "production"]).default("development"),
