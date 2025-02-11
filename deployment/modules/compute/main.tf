@@ -1,5 +1,6 @@
 locals {
   log_group_name = "/ecs/${var.app_name}-${var.app_environment}"
+  container_name = "${var.app_name}-${var.app_environment}-api"
 }
 
 module "ecs" {
@@ -45,6 +46,14 @@ module "ecs" {
             scale_out_cooldown = 300
           }
         }
+
+        load_balancer = {
+          service = {
+            target_group_arn = var.lb_target_group_arn
+            container_name   = local.container_name
+            container_port   = var.DATALAYER_HASURA_EXPOSED_PORT
+          }
+        }
       }
     },
     {
@@ -85,6 +94,7 @@ resource "aws_ecs_task_definition" "api_task" {
       essential = true
       environment = [
         for key, value in {
+          HASURA_GRAPHQL_METADATA_DATABASE_URL         = var.DATALAYER_HASURA_DATABASE_URL
           HASURA_GRAPHQL_DATABASE_URL                  = var.DATALAYER_HASURA_DATABASE_URL
           HASURA_GRAPHQL_EXPOSED_PORT                  = var.DATALAYER_HASURA_EXPOSED_PORT
           HASURA_GRAPHQL_ENABLE_CONSOLE                = var.DATALAYER_HASURA_ENABLE_CONSOLE
@@ -98,15 +108,21 @@ resource "aws_ecs_task_definition" "api_task" {
           HASURA_GRAPHQL_DEV_MODE                      = var.DATALAYER_HASURA_DEV_MODE
           HASURA_GRAPHQL_ENABLED_LOG_TYPES             = var.DATALAYER_HASURA_ENABLED_LOG_TYPES
           HASURA_GRAPHQL_ADMIN_INTERNAL_ERRORS         = var.DATALAYER_HASURA_ADMIN_INTERNAL_ERRORS
+          HASURA_GRAPHQL_ENABLE_ALLOW_LIST             = var.DATALAYER_HASURA_ENABLE_ALLOW_LIST
           } : {
           name  = key
           value = value
         }
       ]
-      port_mappings = [
+      health_check = {
+        path = "/healthz"
+        port = var.DATALAYER_HASURA_EXPOSED_PORT
+      }
+      portMappings = [
         {
-          containerPort = var.DATALAYER_HASURA_EXPOSED_PORT
-          hostPort      = var.DATALAYER_HASURA_EXPOSED_PORT
+          containerPort = tonumber(var.DATALAYER_HASURA_EXPOSED_PORT)
+          hostPort      = tonumber(var.DATALAYER_HASURA_EXPOSED_PORT)
+          protocol      = "tcp"
         }
       ]
       logConfiguration = {

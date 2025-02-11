@@ -201,3 +201,7 @@ variable "DATALAYER_HASURA_EXPERIMENTAL_FEATURES" {
   description = "Datalayer hasura experimental features"
   type        = string
 }
+variable "DATALAYER_HASURA_ENABLE_ALLOW_LIST" {
+  description = "Datalayer hasura enable allow list"
+  type        = string
+}

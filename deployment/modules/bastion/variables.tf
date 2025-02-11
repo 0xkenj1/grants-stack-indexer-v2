@@ -17,3 +17,8 @@ variable "bastion_instance_profile_name" {
   description = "The name of the bastion instance profile"
   type        = string
 }
+
+variable "bastion_security_group_id" {
+  description = "The ID of the bastion security group"
+  type        = string
+}

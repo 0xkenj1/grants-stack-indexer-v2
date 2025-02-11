@@ -63,6 +63,16 @@ module "bastion" {
   app_name                      = var.app_name
   subnet_id                     = module.networking.private_subnets[0]
   bastion_instance_profile_name = module.iam.bastion_instance_profile_name
+  bastion_security_group_id     = module.networking.processing_security_group_id
+}
+
+module "load_balancer" {
+  source                          = "../../modules/load_balancer"
+  app_name                        = var.app_name
+  app_environment                 = var.app_environment
+  vpc_id                          = module.networking.vpc_id
+  public_subnets                  = module.networking.public_subnets
+  load_balancer_security_group_id = module.networking.load_balancer_security_group_id
 }
 
 module "compute" {
@@ -78,6 +88,7 @@ module "compute" {
   api_repository_url                             = var.api_repository_url
   api_service_role_arn                           = module.iam.api_service_role_arn
   api_security_group_id                          = module.networking.api_security_group_id
+  lb_target_group_arn                            = module.load_balancer.lb_target_group_arn
   NODE_ENV                                       = var.NODE_ENV
   RETRY_BASE_DELAY_MS                            = var.RETRY_BASE_DELAY_MS
   RETRY_MAX_DELAY_MS                             = var.RETRY_MAX_DELAY_MS
@@ -97,6 +108,7 @@ module "compute" {
   DATALAYER_HASURA_DEFAULT_NAMING_CONVENTION     = var.DATALAYER_HASURA_DEFAULT_NAMING_CONVENTION
   DATALAYER_HASURA_BIGQUERY_STRING_NUMERIC_INPUT = var.DATALAYER_HASURA_BIGQUERY_STRING_NUMERIC_INPUT
   DATALAYER_HASURA_EXPERIMENTAL_FEATURES         = var.DATALAYER_HASURA_EXPERIMENTAL_FEATURES
+  DATALAYER_HASURA_ENABLE_ALLOW_LIST             = var.DATALAYER_HASURA_ENABLE_ALLOW_LIST
   CHAINS                                         = var.CHAINS
 
   DATABASE_URL        = "postgresql://${var.DATALAYER_PG_USER}:${var.DATALAYER_PG_PASSWORD}@${module.storage.rds_endpoint}/${var.DATALAYER_PG_DB_NAME}"

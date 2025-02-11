@@ -66,6 +66,11 @@ variable "api_security_group_id" {
   type        = string
 }
 
+variable "lb_target_group_arn" {
+  description = "The ARN of the load balancer target group"
+  type        = string
+}
+
 
 
 
@@ -170,6 +175,10 @@ variable "DATALAYER_HASURA_ENABLED_LOG_TYPES" {
   type        = string
 }
 
+variable "DATALAYER_HASURA_ENABLE_ALLOW_LIST" {
+  description = "The enable allow list of the datalayer hasura"
+  type        = string
+}
 ##########################
 ## Processing environment variables
 ##########################

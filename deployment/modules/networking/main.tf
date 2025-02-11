@@ -48,42 +48,7 @@ resource "aws_security_group" "processing" {
 
 }
 
-resource "aws_security_group" "api" {
-  name   = "${var.app_name}-${var.app_environment}-api-sg"
-  vpc_id = module.vpc.vpc_id
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name        = "${var.app_name}-${var.app_environment}-api-sg"
-    Environment = var.app_environment
-  }
-}
 
 resource "aws_security_group" "rds" {
 
@@ -115,6 +80,55 @@ resource "aws_security_group" "rds" {
 
   tags = {
     Name        = "${var.app_name}-${var.app_environment}-rds-sg"
+    Environment = var.app_environment
+  }
+}
+
+resource "aws_security_group" "load_balancer" {
+  name   = "${var.app_name}-${var.app_environment}-load-balancer-sg"
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.app_name}-${var.app_environment}-load-balancer-sg"
+    Environment = var.app_environment
+  }
+
+}
+
+resource "aws_security_group" "api" {
+  name   = "${var.app_name}-${var.app_environment}-api-sg"
+  vpc_id = module.vpc.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.load_balancer.id]
+  }
+
+  tags = {
+    Name        = "${var.app_name}-${var.app_environment}-api-sg"
     Environment = var.app_environment
   }
 }
