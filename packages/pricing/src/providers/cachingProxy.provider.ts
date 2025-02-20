@@ -9,7 +9,6 @@ import {
     TokenPrice,
 } from "../internal.js";
 
-const PROXIMITY_GRANULARITY_MS_FACTOR = 5;
 /**
  * A pricing provider that caches token price lookups from the underlying provider.
  * When a price is requested, it first checks the cache. If found, returns the cached price.
