@@ -4,9 +4,9 @@ on:
     workflow_call:
 
 jobs:
-    build-and-validate:
+    build-image:
+        name: Build Image
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v3

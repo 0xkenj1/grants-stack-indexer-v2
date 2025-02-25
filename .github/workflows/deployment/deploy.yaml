@@ -1,0 +1,70 @@
+name: Terraform Deployment with Docker Tag
+
+on:
+    workflow_dispatch:
+        inputs:
+            docker_tag:
+                description: "Docker image tag"
+                required: true
+            deploy_environment:
+                description: "Deployment environment (e.g., staging, production)"
+                required: true
+                default: "staging"
+
+jobs:
+    check-admin-permissions:
+        name: Set deployment environment
+        runs-on: ubuntu-latest
+        steps:
+            - id: check-admin
+              name: Check if user is an admin
+              run: |
+                  if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+                    RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission)
+
+                    PERMISSION=$(echo $RESPONSE | jq -r .permission)
+
+                    if [ "$PERMISSION" != "admin" ]; then
+                      echo "::error::This workflow can only be run by admin users." && exit 1
+                    fi
+                  fi
+            - id: check-valid-environment
+              name: Check if the environment is valid
+              run: |
+                  if [ "${{ github.event.inputs.deploy_environment }}" != "staging" && "${{ github.event.inputs.deploy_environment }}" != "production" ]; then
+                    echo "::error::Invalid environment. Please choose either 'staging' or 'production'." && exit 1
+                  fi
+
+    deploy:
+        name: Terraform Deployment
+        runs-on: ubuntu-latest
+        environment:
+            name: ${{ github.event.inputs.deploy_environment }}
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v1
+              with:
+                  terraform_version: "1.4.6"
+
+            - name: Set up AWS CLI
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: us-east-2
+
+            - name: Terraform Init
+              working-directory: deployment/environments/${{ github.event.inputs.deploy_environment }}
+              run: terraform init
+
+            - name: Terraform Plan
+              working-directory: deployment/environments/${{ github.event.inputs.deploy_environment }}
+              run: terraform plan
+
+            - name: Terraform Apply with Auto Confirm
+              working-directory: deployment/environments/${{ github.event.inputs.deploy_environment }}
+              run: terraform apply -auto-approve
