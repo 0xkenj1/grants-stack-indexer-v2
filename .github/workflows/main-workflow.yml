@@ -13,19 +13,19 @@ concurrency:
 
 jobs:
     build:
-        uses: ./.github/workflows/base/build.yml
+        uses: ./.github/workflows/build.yml
 
     build-image:
-        uses: ./.github/workflows/base/build-image.yml
+        uses: ./.github/workflows/build-image.yml
 
     lint:
-        uses: ./.github/workflows/base/lint.yml
+        uses: ./.github/workflows/lint.yml
         needs: build
 
     test:
-        uses: ./.github/workflows/base/test.yml
+        uses: ./.github/workflows/test.yml
         needs: lint
 
     test-integration:
-        uses: ./.github/workflows/base/test-integration.yml
+        uses: ./.github/workflows/test-integration.yml
         needs: lint
