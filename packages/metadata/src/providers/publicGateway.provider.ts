@@ -23,7 +23,7 @@ export class PublicGatewayProvider implements IMetadataProvider {
     async getMetadata<T>(
         ipfsCid: string,
         validateContent?: z.ZodSchema<T>,
-    ): Promise<T | undefined> {
+    ): Promise<T | undefined | null> {
         if (ipfsCid === "" || !isValidCid(ipfsCid)) {
             return undefined;
         }

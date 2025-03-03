@@ -143,7 +143,13 @@ export class Orchestrator {
             try {
                 if (this.eventsQueue.isEmpty()) {
                     const events = await this.getNextEventsBatch();
-                    await this.bulkFetchMetadataAndPricesForBatch(events);
+                    if (
+                        events[0] &&
+                        Math.abs(new Date().getTime() - events[0].blockTimestamp!) >
+                            1000 * 60 * 60 * 0.5 // 30 minutes
+                    ) {
+                        await this.bulkFetchMetadataAndPricesForBatch(events);
+                    }
                     await this.enqueueEvents(events);
                     totalEvents += events.length;
                 }

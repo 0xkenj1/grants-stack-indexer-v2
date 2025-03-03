@@ -33,7 +33,7 @@ describe("EnvioIndexerClient", () => {
     let testEvents: EnvioEvent[];
 
     beforeEach(() => {
-        // Sample test data
+        // Sample test datåa
         testEvents = [
             {
                 chainId: 1,
