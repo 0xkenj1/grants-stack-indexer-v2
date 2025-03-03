@@ -12,31 +12,24 @@ on:
 
 env:
     TF_VAR_processing_image_tag: ${{ github.event.inputs.processing_image_tag }}
+    TF_VAR_app_environment: ${{ github.event.inputs.deploy_environment }}
+    TF_VAR_NODE_ENV: ${{ github.event.inputs.deploy_environment }}
 
 jobs:
-    check-admin-permissions:
-        name: Set deployment environment
+    check-admin:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: ./.github/workflows/check-admin.yml
+          with:
+              github_token:  ${{ secrets.GITHUB_TOKEN }}
+
+    validate-environment:
+        name: Validate environment
         runs-on: ubuntu-latest
         steps:
-            - id: check-admin
-              name: Check if user is an admin
-              run: |
-                  if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
-                    RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                    https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission)
-
-                    PERMISSION=$(echo $RESPONSE | jq -r .permission)
-
-                    if [ "$PERMISSION" != "admin" ]; then
-                      echo "::error::This workflow can only be run by admin users." && exit 1
-                    fi
-                  fi
-            - id: check-valid-environment
-              name: Check if the environment is valid
-              run: |
-                  if [ "${{ github.event.inputs.deploy_environment }}" != "staging" && "${{ github.event.inputs.deploy_environment }}" != "production" ]; then
-                    echo "::error::Invalid environment. Please choose either 'staging' or 'production'." && exit 1
-                  fi
+            - uses: ./.github/workflows/validate-environment.yml
+              with:
+                  deploy_environment: ${{ github.event.inputs.deploy_environment }}
 
     deploy:
         name: Terraform Deployment
@@ -44,6 +37,14 @@ jobs:
         environment:
             name: ${{ github.event.inputs.deploy_environment }}
         steps:
+            - name: Load environment variables
+              run: |
+                  echo "$ENV_FILE" > myenvfile
+                  source myenvfile
+                  env
+              env:
+                ENV_FILE: ${{ env.ENV_FILE }} 
+
             - name: Checkout Repository
               uses: actions/checkout@v3
 

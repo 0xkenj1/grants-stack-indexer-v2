@@ -1,0 +1,21 @@
+name: Check Admin
+
+on:
+    workflow_call:
+        inputs:
+            deploy_environment:
+                type: string
+                description: The environment to deploy to
+
+jobs:
+    check-admin:
+        name: Check if user is an admin
+        runs-on: ubuntu-latest
+
+        steps:
+            - id: check-valid-environment
+              name: Check if the environment is valid
+              run: |
+                  if [ "${{ inputs.deploy_environment }}" != "staging" && "${{ inputs.deploy_environment }}" != "production" ]; then
+                    echo "::error::Invalid environment. Please choose either 'staging' or 'production'." && exit 1
+                  fi
