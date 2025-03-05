@@ -1,0 +1,68 @@
+name: Deploy to AWS (First deployment)
+
+on:
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        name: Terraform Deployment
+        runs-on: ubuntu-latest
+        env:
+            TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+            TF_VAR_APP_NAME: ${{ vars.APP_NAME }}
+            TF_VAR_APP_ENVIRONMENT: production
+            #Database
+            TF_VAR_DATALAYER_PG_USER: ${{ secrets.DATALAYER_PG_USER }}
+            TF_VAR_DATALAYER_PG_PASSWORD: ${{ secrets.DATALAYER_PG_PASSWORD }}
+            #Hasura API
+            TF_VAR_GREEN_DATALAYER_HASURA_ADMIN_SECRET: ${{ secrets.DATALAYER_HASURA_ADMIN_SECRET }}
+            TF_VAR_BLUE_DATALAYER_HASURA_ADMIN_SECRET: ${{ secrets.DATALAYER_HASURA_ADMIN_SECRET }}
+            #Coingecko API
+            TF_VAR_GREEN_COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+            TF_VAR_BLUE_COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+        steps:
+            - name: Check out github repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 1
+
+            - name: Check if user is an admin
+              uses: ./.github/actions/check-admin
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v1
+              with:
+                  terraform_version: "1.4.6"
+                  terraform_wrapper: false
+
+            - name: Set up AWS CLI
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ vars.AWS_REGION }}
+
+            - name: Terraform Init
+              working-directory: deployment/environments/production
+              run: |
+                  terraform init \
+                    -backend-config="bucket=${{ vars.APP_NAME }}-terraform-state" \
+                    -backend-config="key=${{ vars.APP_NAME }}-production-state" \
+                    -backend-config="region=${{ vars.AWS_REGION }}" \
+                    -backend-config="encrypt=true"
+
+            - name: Terraform Apply
+              working-directory: deployment/environments/production
+              run: |
+                  # Validate that TERRAFORM_VARS is valid JSON.
+                  if ! jq empty <<< "$TERRAFORM_VARS" >/dev/null 2>&1; then
+                    echo "Error: TERRAFORM_VARS is not valid JSON."
+                    exit 1
+                  fi
+                  # Write the contents of TERRAFORM_VARS to tfvars.json.
+                  cat <<< "$TERRAFORM_VARS" > tfvars.json
+                  terraform apply -var-file=tfvars.json -auto-approve -var="DEPLOYMENT_STATE=single" -var="ACTIVE_ENVIRONMENT=green"
+              env:
+                  TERRAFORM_VARS: ${{ vars.TERRAFORM_VARS }}
