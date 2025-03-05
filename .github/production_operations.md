@@ -2,6 +2,10 @@
 
 This guide is for production operations on the Gitcoin Data Layer.
 
+## Architecture diagram
+
+![Architecture diagram](./architecture_diagram.png)
+
 ## First Deployment
 
 Fill the secrets and variables in github actions secrets and variables. those are:
