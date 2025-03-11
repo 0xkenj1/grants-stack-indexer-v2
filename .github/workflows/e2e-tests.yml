@@ -1,0 +1,23 @@
+name: E2E Tests
+
+on:
+    workflow_call:
+
+jobs:
+    e2e:
+        name: E2E Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out github repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 1
+
+            - name: Setup environment
+              uses: ./.github/actions/setup
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run tests
+              run: pnpm test:e2e
