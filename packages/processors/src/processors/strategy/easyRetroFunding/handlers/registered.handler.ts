@@ -80,6 +80,7 @@ export class ERFRegisteredHandler implements IEventHandler<"Strategy", "Register
             totalAmountDonatedInUsd: 0,
             totalDonationsCount: 0,
             uniqueDonorsCount: 0,
+            timestamp: new Date(blockTimestamp),
             tags: ["allo-v2"],
         };
 
