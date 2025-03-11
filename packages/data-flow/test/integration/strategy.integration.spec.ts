@@ -116,7 +116,7 @@ describe("Orchestrator Integration - Strategy Events Processing", () => {
                 eventName: "DistributionUpdatedWithMerkleRoot",
                 params: {
                     metadata: ["1", "ipfs://distribution-metadata"],
-                    merkleRoot: bytesToHex(randomBytes(32)) as Bytes32String,
+                    merkleRoot: bytesToHex(Uint8Array.from(randomBytes(32))) as Bytes32String,
                 },
                 srcAddress: "0xD5F6cA46A9DA3c1089D0F2F029CF14F3f714D483",
             });
@@ -196,7 +196,7 @@ describe("Orchestrator Integration - Strategy Events Processing", () => {
             params: {
                 metadata: ["1", "ipfs://distribution-metadata"],
             },
-            srcAddress: "0xD5F6cA46A9DA3c1089D0F2F029CF14F3f714D483",
+            srcAddress: "0x43E08E93DfB437D027CE71c60a904C2E8f72CB4a",
         });
 
         const { indexerClient } = mocks;
